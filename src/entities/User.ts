@@ -1,42 +1,43 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import type { Booking } from './Booking.ts';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
+import type { CustomerProfile } from './CustomerProfile.ts';
+import type { StaffProfile } from './StaffProfile.ts';
 
 export enum UserRole {
-    ADMIN = 'ADMIN',
-    STAFF = 'STAFF',
-    USER = 'USER',
+    ADMIN = 'admin',
+    STAFF = 'staff',
+    CUSTOMER = 'customer',
 }
 
 @Entity('users')
 export class User {
-    @PrimaryGeneratedColumn()
-    id!: number;
+    @PrimaryGeneratedColumn('uuid')
+    id!: string;
 
     @Column({ unique: true })
     email!: string;
 
-    @Column()
-    password!: string;
-
-    @Column({ nullable: true })
-    firstName?: string;
-
-    @Column({ nullable: true })
-    lastName?: string;
+    @Column({ name: 'password_hash' })
+    passwordHash!: string;
 
     @Column({
         type: 'enum',
         enum: UserRole,
-        default: UserRole.USER,
+        default: UserRole.CUSTOMER,
     })
     role!: UserRole;
 
-    @CreateDateColumn()
+    @Column({ name: 'is_active', default: true })
+    isActive!: boolean;
+
+    @CreateDateColumn({ name: 'created_at' })
     createdAt!: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ name: 'updated_at' })
     updatedAt!: Date;
 
-    @OneToMany('Booking', 'user')
-    bookings!: Booking[];
+    @OneToOne('CustomerProfile', 'user')
+    customerProfile?: CustomerProfile;
+
+    @OneToOne('StaffProfile', 'user')
+    staffProfile?: StaffProfile;
 }

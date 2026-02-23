@@ -1,29 +1,37 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
-import type { Booking } from './Booking.ts';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import type { User } from './User.ts';
+import type { ItemStorage } from './ItemStorage.ts';
 
 @Entity('items')
 export class Item {
-    @PrimaryGeneratedColumn()
-    id!: number;
+    @PrimaryGeneratedColumn('uuid')
+    id!: string;
+
+    @Column({ name: 'customer_id' })
+    customerId!: string;
+
+    @ManyToOne('User', { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'customer_id' })
+    customer!: User;
 
     @Column()
     name!: string;
 
-    @Column({ type: 'int', default: 1 })
-    quantity!: number;
+    @Column({ type: 'text', nullable: true })
+    description?: string;
 
-    @Column({ type: 'float', nullable: true })
-    weight?: number; // in kg
+    @Column({ nullable: true })
+    category?: string;
 
-    @Column({ type: 'varchar', nullable: true })
-    dimensions?: string; // e.g., '10x10x10 cm'
+    @Column({ type: 'numeric', name: 'declared_value', nullable: true })
+    declaredValue?: number;
 
-    @CreateDateColumn()
+    @CreateDateColumn({ name: 'created_at' })
     createdAt!: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ name: 'updated_at' })
     updatedAt!: Date;
 
-    @ManyToOne('Booking', 'items')
-    booking!: Booking;
+    @OneToMany('ItemStorage', 'item')
+    storageHistory!: ItemStorage[];
 }

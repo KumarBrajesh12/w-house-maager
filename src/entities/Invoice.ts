@@ -1,36 +1,47 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
-import type { Booking } from './Booking.ts';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import type { User } from './User.ts';
+import type { InvoiceItem } from './InvoiceItem.ts';
 
 export enum InvoiceStatus {
-    PENDING = 'PENDING',
-    PAID = 'PAID',
-    CANCELLED = 'CANCELLED',
+    PAID = 'paid',
+    UNPAID = 'unpaid',
+    OVERDUE = 'overdue',
 }
 
 @Entity('invoices')
 export class Invoice {
-    @PrimaryGeneratedColumn()
-    id!: number;
+    @PrimaryGeneratedColumn('uuid')
+    id!: string;
 
-    @Column('decimal', { precision: 10, scale: 2 })
-    amount!: number;
+    @Column({ name: 'customer_id' })
+    customerId!: string;
+
+    @ManyToOne('User')
+    @JoinColumn({ name: 'customer_id' })
+    customer!: User;
+
+    @Column({ type: 'date', name: 'billing_period_start' })
+    billingPeriodStart!: Date;
+
+    @Column({ type: 'date', name: 'billing_period_end' })
+    billingPeriodEnd!: Date;
+
+    @Column({ type: 'numeric', name: 'total_amount' })
+    totalAmount!: number;
 
     @Column({
         type: 'enum',
         enum: InvoiceStatus,
-        default: InvoiceStatus.PENDING,
+        default: InvoiceStatus.UNPAID,
     })
     status!: InvoiceStatus;
 
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    generatedAt!: Date;
-
-    @CreateDateColumn()
+    @CreateDateColumn({ name: 'created_at' })
     createdAt!: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ name: 'updated_at' })
     updatedAt!: Date;
 
-    @ManyToOne('Booking', 'invoices')
-    booking!: Booking;
+    @OneToMany('InvoiceItem', 'invoice')
+    items!: InvoiceItem[];
 }

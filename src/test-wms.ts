@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:4000";
+const BASE_URL = "http://localhost:5500";
 
 async function runTests() {
     console.log("--- Warehouse Management System Verification ---");

@@ -1,5 +1,5 @@
 {
-  "name": "task-manager",
+  "name": "w-house-manager",
   "module": "src/index.ts",
   "type": "module",
   "scripts": {

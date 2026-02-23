@@ -1,5 +1,5 @@
-import { AppDataSource } from "../config/data-source";
-import { User, UserRole } from "../entities/User";
+import { AppDataSource } from "../config/data-source.ts";
+import { User, UserRole } from "../entities/User.ts";
 import bcrypt from "bcryptjs";
 import { sign } from "hono/jwt";
 import type { Context } from "hono";
@@ -8,7 +8,7 @@ const userRepository = AppDataSource.getRepository(User);
 
 export const register = async (c: Context) => {
     try {
-        const { email, password, firstName, lastName, role } = await c.req.json(); // Added role
+        const { email, password, role } = await c.req.json();
 
         if (!email || !password) {
             return c.json({ error: "Email and password are required" }, 400);
@@ -22,19 +22,16 @@ export const register = async (c: Context) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = userRepository.create({
             email,
-            password: hashedPassword,
-            firstName,
-            lastName,
-            role: role || UserRole.USER, // Added role with default
+            passwordHash: hashedPassword,
+            role: (role?.toLowerCase() as UserRole) || UserRole.CUSTOMER,
         });
 
         await userRepository.save(user);
 
-        // Don't return password
-        const { password: _, ...userWithoutPassword } = user;
+        const { passwordHash: _, ...userWithoutPassword } = user;
         return c.json(userWithoutPassword, 201);
     } catch (error) {
-        return c.json({ error: "Registration failed" }, 500);
+        return c.json({ error: "Registration failed: " + (error as Error).message }, 500);
     }
 };
 
@@ -42,12 +39,12 @@ export const login = async (c: Context) => {
     try {
         const { email, password } = await c.req.json();
 
-        const user = await userRepository.findOneBy({ email });
+        const user = await userRepository.findOne({ where: { email } });
         if (!user) {
             return c.json({ error: "Invalid credentials" }, 401);
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
         if (!isPasswordValid) {
             return c.json({ error: "Invalid credentials" }, 401);
         }
@@ -57,13 +54,20 @@ export const login = async (c: Context) => {
             {
                 id: user.id,
                 email: user.email,
-                role: user.role, // Added role to JWT payload
+                role: user.role,
                 exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 24 hours
             },
             secret
         );
 
-        return c.json({ token, user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role } }); // Added role to returned user object
+        return c.json({
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role
+            }
+        });
     } catch (error) {
         return c.json({ error: "Login failed" }, 500);
     }
@@ -72,7 +76,7 @@ export const login = async (c: Context) => {
 export const getUsers = async (c: Context) => {
     try {
         const users = await userRepository.find({
-            select: ["id", "email", "firstName", "lastName", "role", "createdAt", "updatedAt"], // Added role
+            select: ["id", "email", "role", "isActive", "createdAt", "updatedAt"],
         });
         return c.json(users);
     } catch (error) {
@@ -82,10 +86,10 @@ export const getUsers = async (c: Context) => {
 
 export const getUserById = async (c: Context) => {
     try {
-        const id = parseInt(c.req.param("id"));
+        const id = c.req.param("id");
         const user = await userRepository.findOne({
             where: { id },
-            select: ["id", "email", "firstName", "lastName", "role", "createdAt", "updatedAt"], // Added role
+            select: ["id", "email", "role", "isActive", "createdAt", "updatedAt"],
         });
 
         if (!user) {
@@ -100,7 +104,7 @@ export const getUserById = async (c: Context) => {
 
 export const updateUser = async (c: Context) => {
     try {
-        const id = parseInt(c.req.param("id"));
+        const id = c.req.param("id");
         const body = await c.req.json();
 
         const user = await userRepository.findOneBy({ id });
@@ -108,18 +112,16 @@ export const updateUser = async (c: Context) => {
             return c.json({ error: "User not found" }, 404);
         }
 
-        // Update fields
-        if (body.firstName) user.firstName = body.firstName;
-        if (body.lastName) user.lastName = body.lastName;
         if (body.email) user.email = body.email;
-        if (body.role) user.role = body.role; // Added role update
+        if (body.role) user.role = body.role.toLowerCase() as UserRole;
+        if (body.isActive !== undefined) user.isActive = body.isActive;
         if (body.password) {
-            user.password = await bcrypt.hash(body.password, 10);
+            user.passwordHash = await bcrypt.hash(body.password, 10);
         }
 
         await userRepository.save(user);
 
-        const { password: _, ...userWithoutPassword } = user;
+        const { passwordHash: _, ...userWithoutPassword } = user;
         return c.json(userWithoutPassword);
     } catch (error) {
         return c.json({ error: "Update failed" }, 500);
@@ -128,7 +130,7 @@ export const updateUser = async (c: Context) => {
 
 export const deleteUser = async (c: Context) => {
     try {
-        const id = parseInt(c.req.param("id"));
+        const id = c.req.param("id");
         const result = await userRepository.delete(id);
 
         if (result.affected === 0) {
