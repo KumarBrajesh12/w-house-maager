@@ -1,5 +1,10 @@
 import { Hono } from 'hono';
 import { AppDataSource } from './config/data-source';
+import authRoutes from './routes/auth.routes';
+import userRoutes from './routes/user.routes';
+import storageRoutes from './routes/storage.routes';
+import bookingRoutes from './routes/booking.routes';
+import itemRoutes from './routes/item.routes';
 
 const app = new Hono();
 
@@ -12,9 +17,16 @@ AppDataSource.initialize()
         console.error("Error during Data Source initialization", err);
     });
 
+// Mount Routes
+app.route('/auth', authRoutes);
+app.route('/users', userRoutes);
+app.route('/storage', storageRoutes);
+app.route('/bookings', bookingRoutes);
+app.route('/items', itemRoutes);
+
 app.get('/', (c) => {
     return c.json({
-        message: 'Task Management API is running',
+        message: 'Warehouse Management API is running',
         status: 'ok',
         orm: 'TypeORM',
         timestamp: new Date().toISOString()

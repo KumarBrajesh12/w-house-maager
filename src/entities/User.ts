@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import type { Booking } from './Booking.ts';
+
+export enum UserRole {
+    ADMIN = 'ADMIN',
+    STAFF = 'STAFF',
+    USER = 'USER',
+}
 
 @Entity('users')
 export class User {
@@ -17,9 +24,19 @@ export class User {
     @Column({ nullable: true })
     lastName?: string;
 
+    @Column({
+        type: 'enum',
+        enum: UserRole,
+        default: UserRole.USER,
+    })
+    role!: UserRole;
+
     @CreateDateColumn()
     createdAt!: Date;
 
     @UpdateDateColumn()
     updatedAt!: Date;
+
+    @OneToMany('Booking', 'user')
+    bookings!: Booking[];
 }
