@@ -4,8 +4,8 @@ import type { StaffProfile } from './StaffProfile.ts';
 
 export enum UserRole {
     ADMIN = 'admin',
-    STAFF = 'staff',
-    CUSTOMER = 'customer',
+    EMPLOYEE = 'employee',
+    USER = 'user',
 }
 
 @Entity('users')
@@ -22,7 +22,7 @@ export class User {
     @Column({
         type: 'enum',
         enum: UserRole,
-        default: UserRole.CUSTOMER,
+        default: UserRole.USER,
     })
     role!: UserRole;
 

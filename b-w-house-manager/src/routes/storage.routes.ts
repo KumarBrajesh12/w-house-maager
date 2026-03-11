@@ -11,8 +11,8 @@ storageRoutes.use("/*", jwt({ secret, alg: "HS256" }));
 
 // Only Admin and Staff can manage units
 storageRoutes.get("/", getUnits);
-storageRoutes.post("/", checkRole([UserRole.ADMIN, UserRole.STAFF]), createUnit);
-storageRoutes.patch("/:id", checkRole([UserRole.ADMIN, UserRole.STAFF]), updateUnit);
+storageRoutes.post("/", checkRole([UserRole.ADMIN, UserRole.EMPLOYEE]), createUnit);
+storageRoutes.patch("/:id", checkRole([UserRole.ADMIN, UserRole.EMPLOYEE]), updateUnit);
 storageRoutes.delete("/:id", checkRole([UserRole.ADMIN]), deleteUnit);
 
 export default storageRoutes;

@@ -23,7 +23,7 @@ export const register = async (c: Context) => {
         const user = userRepository.create({
             email,
             passwordHash: hashedPassword,
-            role: (role?.toLowerCase() as UserRole) || UserRole.CUSTOMER,
+            role: (role?.toLowerCase() as UserRole) || UserRole.USER,
         });
 
         await userRepository.save(user);
