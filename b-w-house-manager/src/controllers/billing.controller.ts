@@ -5,11 +5,13 @@ const billingService = new BillingService();
 
 export const generateInvoice = async (c: Context) => {
     try {
+        const tenantId = c.get('tenantId');
         const { customerId, startDate, endDate } = await c.req.json();
         const invoice = await billingService.generateInvoice(
             customerId,
             new Date(startDate),
-            new Date(endDate)
+            new Date(endDate),
+            tenantId
         );
         if (!invoice) return c.json({ message: 'No billable usage found for this period' }, 200);
         return c.json(invoice, 201);
@@ -20,8 +22,9 @@ export const generateInvoice = async (c: Context) => {
 
 export const getCustomerInvoices = async (c: Context) => {
     try {
+        const tenantId = c.get('tenantId');
         const customerId = c.req.param('customerId');
-        const invoices = await billingService.getCustomerInvoices(customerId);
+        const invoices = await billingService.getCustomerInvoices(customerId, tenantId);
         return c.json(invoices);
     } catch (error) {
         return c.json({ error: (error as Error).message }, 400);

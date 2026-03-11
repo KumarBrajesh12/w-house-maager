@@ -1,14 +1,16 @@
 import { AppDataSource } from "../config/data-source.ts";
 import { User, UserRole } from "../entities/User.ts";
+import { Tenant } from "../entities/Tenant.ts";
 import bcrypt from "bcryptjs";
 import { sign } from "hono/jwt";
 import type { Context } from "hono";
 
 const userRepository = AppDataSource.getRepository(User);
+const tenantRepository = AppDataSource.getRepository(Tenant);
 
 export const register = async (c: Context) => {
     try {
-        const { email, password, role } = await c.req.json();
+        const { email, password, role, tenantName } = await c.req.json();
 
         if (!email || !password) {
             return c.json({ error: "Email and password are required" }, 400);
@@ -19,11 +21,19 @@ export const register = async (c: Context) => {
             return c.json({ error: "User already exists" }, 400);
         }
 
+        let tenantId: string | undefined = undefined;
+        if (tenantName) {
+            const tenant = tenantRepository.create({ name: tenantName });
+            await tenantRepository.save(tenant);
+            tenantId = tenant.id;
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = userRepository.create({
             email,
             passwordHash: hashedPassword,
             role: (role?.toLowerCase() as UserRole) || UserRole.USER,
+            tenantId,
         });
 
         await userRepository.save(user);
@@ -39,7 +49,10 @@ export const login = async (c: Context) => {
     try {
         const { email, password } = await c.req.json();
 
-        const user = await userRepository.findOne({ where: { email } });
+        const user = await userRepository.findOne({
+            where: { email },
+            relations: ["tenant"]
+        });
         if (!user) {
             return c.json({ error: "Invalid credentials" }, 401);
         }
@@ -55,6 +68,7 @@ export const login = async (c: Context) => {
                 id: user.id,
                 email: user.email,
                 role: user.role,
+                tenantId: user.tenantId,
                 exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 24 hours
             },
             secret
@@ -65,7 +79,9 @@ export const login = async (c: Context) => {
             user: {
                 id: user.id,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                tenantId: user.tenantId,
+                tenantName: user.tenant?.name
             }
         });
     } catch (error) {

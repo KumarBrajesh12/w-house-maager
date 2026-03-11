@@ -5,8 +5,9 @@ const warehouseService = new WarehouseService();
 
 export const createWarehouse = async (c: Context) => {
     try {
+        const tenantId = c.get('tenantId');
         const { name, location, totalCapacity } = await c.req.json();
-        const warehouse = await warehouseService.createWarehouse(name, location, totalCapacity);
+        const warehouse = await warehouseService.createWarehouse(name, location, totalCapacity, tenantId);
         return c.json(warehouse, 201);
     } catch (error) {
         return c.json({ error: (error as Error).message }, 400);
@@ -48,8 +49,9 @@ export const addSlot = async (c: Context) => {
 
 export const getWarehouseHierarchy = async (c: Context) => {
     try {
+        const tenantId = c.get('tenantId');
         const warehouseId = c.req.param('warehouseId');
-        const hierarchy = await warehouseService.getWarehouseHierarchy(warehouseId);
+        const hierarchy = await warehouseService.getWarehouseHierarchy(warehouseId, tenantId);
         if (!hierarchy) return c.json({ error: 'Warehouse not found' }, 404);
         return c.json(hierarchy);
     } catch (error) {
@@ -59,7 +61,8 @@ export const getWarehouseHierarchy = async (c: Context) => {
 
 export const getAllWarehouses = async (c: Context) => {
     try {
-        const warehouses = await warehouseService.getAllWarehouses();
+        const tenantId = c.get('tenantId');
+        const warehouses = await warehouseService.getAllWarehouses(tenantId);
         return c.json(warehouses);
     } catch (error) {
         return c.json({ error: (error as Error).message }, 400);

@@ -5,6 +5,8 @@ export interface User {
     email: string;
     role: UserRole;
     isActive: boolean;
+    tenantId?: string;
+    tenantName?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -15,6 +17,8 @@ export interface AuthResponse {
         id: string;
         email: string;
         role: UserRole;
+        tenantId?: string;
+        tenantName?: string;
     };
 }
 
@@ -25,4 +29,5 @@ export interface LoginCredentials {
 
 export interface RegisterCredentials extends LoginCredentials {
     role?: UserRole;
+    tenantName?: string;
 }

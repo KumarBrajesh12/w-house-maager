@@ -1,11 +1,19 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import type { User } from './User.ts';
 import type { ItemStorage } from './ItemStorage.ts';
+import type { Tenant } from './Tenant.ts';
 
 @Entity('items')
 export class Item {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
+
+    @Column({ name: 'tenant_id', nullable: true })
+    tenantId?: string;
+
+    @ManyToOne('Tenant', { nullable: true })
+    @JoinColumn({ name: 'tenant_id' })
+    tenant?: Tenant;
 
     @Column({ name: 'customer_id' })
     customerId!: string;

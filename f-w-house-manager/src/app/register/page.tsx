@@ -21,6 +21,7 @@ export default function RegisterPage() {
 
         const formData = new FormData(e.currentTarget);
         const email = formData.get("email") as string;
+        const tenantName = formData.get("tenantName") as string;
         const password = formData.get("password") as string;
         const confirmPassword = formData.get("confirmPassword") as string;
 
@@ -31,7 +32,7 @@ export default function RegisterPage() {
         }
 
         try {
-            await authService.register({ email, password });
+            await authService.register({ email, password, tenantName });
             router.push("/login?registered=true");
         } catch (err: any) {
             setError(err?.error || "Registration failed. Please try again.");
@@ -58,6 +59,19 @@ export default function RegisterPage() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-5">
+                        <div className="space-y-2">
+                            <div className="relative">
+                                <Warehouse className="absolute left-3 top-3 w-5 h-5 text-white/30" />
+                                <Input
+                                    name="tenantName"
+                                    placeholder="Organization Name"
+                                    type="text"
+                                    required
+                                    className="pl-11"
+                                    disabled={isLoading}
+                                />
+                            </div>
+                        </div>
                         <div className="space-y-2">
                             <div className="relative">
                                 <Mail className="absolute left-3 top-3 w-5 h-5 text-white/30" />

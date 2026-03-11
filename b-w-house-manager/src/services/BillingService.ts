@@ -9,7 +9,7 @@ export class BillingService {
     private invoiceItemRepository = AppDataSource.getRepository(InvoiceItem);
     private rentalRepository = AppDataSource.getRepository(CustomerRental);
 
-    async generateInvoice(customerId: string, startDate: Date, endDate: Date) {
+    async generateInvoice(customerId: string, startDate: Date, endDate: Date, tenantId: string) {
         return await AppDataSource.transaction(async transactionalEntityManager => {
             // Find active or ended rentals in the period
             const rentals = await transactionalEntityManager.find(CustomerRental, {
@@ -46,7 +46,8 @@ export class BillingService {
                 billingPeriodStart: startDate,
                 billingPeriodEnd: endDate,
                 totalAmount,
-                status: InvoiceStatus.UNPAID
+                status: InvoiceStatus.UNPAID,
+                tenantId
             });
             const savedInvoice = await transactionalEntityManager.save(Invoice, invoice);
 
@@ -67,9 +68,9 @@ export class BillingService {
         });
     }
 
-    async getCustomerInvoices(customerId: string) {
+    async getCustomerInvoices(customerId: string, tenantId: string) {
         return await this.invoiceRepository.find({
-            where: { customerId },
+            where: { customerId, tenantId },
             relations: ['items']
         });
     }

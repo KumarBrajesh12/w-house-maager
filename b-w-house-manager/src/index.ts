@@ -10,10 +10,12 @@ import inventoryRoutes from './routes/inventory.routes.ts';
 import billingRoutes from './routes/billing.routes.ts';
 import analyticsRoutes from './routes/analytics.routes.ts';
 import timelineRoutes from './routes/timeline.routes.ts';
+import { tenantMiddleware } from './middleware/tenant.middleware.ts';
 
 const app = new Hono();
 
 app.use('*', cors());
+app.use('*', tenantMiddleware);
 
 // Swagger Documentation
 app.get('/swagger', swaggerUI({ url: '/doc' }));

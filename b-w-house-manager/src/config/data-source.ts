@@ -18,6 +18,9 @@ import { CustomerRental } from "../entities/CustomerRental.ts";
 import { Invoice } from "../entities/Invoice.ts";
 import { InvoiceItem } from "../entities/InvoiceItem.ts";
 import { ActivityLog } from "../entities/ActivityLog.ts";
+import { Tenant } from "../entities/Tenant.ts";
+
+dotenv.config();
 
 const dbUrl = process.env.DATABASE_URL || `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
 
@@ -27,6 +30,7 @@ export const AppDataSource = new DataSource({
     synchronize: true, // Auto-create table in development
     logging: true,
     entities: [
+        Tenant,
         User,
         CustomerProfile,
         StaffProfile,

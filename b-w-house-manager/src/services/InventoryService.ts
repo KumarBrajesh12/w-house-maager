@@ -12,13 +12,14 @@ export class InventoryService {
     private movementRepository = AppDataSource.getRepository(InventoryMovement);
     private activityLogService = new ActivityLogService();
 
-    async registerItem(customerId: string, name: string, description?: string, category?: string, declaredValue?: number) {
+    async registerItem(customerId: string, name: string, description?: string, category?: string, declaredValue?: number, tenantId?: string) {
         const item = this.itemRepository.create({
             customerId,
             name,
             description,
             category,
-            declaredValue
+            declaredValue,
+            tenantId
         });
         const savedItem = await this.itemRepository.save(item);
 
@@ -69,9 +70,9 @@ export class InventoryService {
         });
     }
 
-    async getCustomerInventory(customerId: string) {
+    async getCustomerInventory(customerId: string, tenantId: string) {
         return await this.itemRepository.find({
-            where: { customerId },
+            where: { customerId, tenantId },
             relations: ['storageHistory', 'storageHistory.slot']
         });
     }

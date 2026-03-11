@@ -10,8 +10,8 @@ export class WarehouseService {
     private rackRepository = AppDataSource.getRepository(Rack);
     private slotRepository = AppDataSource.getRepository(Slot);
 
-    async createWarehouse(name: string, location: string, totalCapacity: number) {
-        const warehouse = this.warehouseRepository.create({ name, location, totalCapacity });
+    async createWarehouse(name: string, location: string, totalCapacity: number, tenantId: string) {
+        const warehouse = this.warehouseRepository.create({ name, location, totalCapacity, tenantId });
         return await this.warehouseRepository.save(warehouse);
     }
 
@@ -30,14 +30,16 @@ export class WarehouseService {
         return await this.slotRepository.save(slot);
     }
 
-    async getWarehouseHierarchy(warehouseId: string) {
+    async getWarehouseHierarchy(warehouseId: string, tenantId: string) {
         return await this.warehouseRepository.findOne({
-            where: { id: warehouseId },
+            where: { id: warehouseId, tenantId },
             relations: ['zones', 'zones.racks', 'zones.racks.slots']
         });
     }
 
-    async getAllWarehouses() {
-        return await this.warehouseRepository.find();
+    async getAllWarehouses(tenantId: string) {
+        return await this.warehouseRepository.find({
+            where: { tenantId }
+        });
     }
 }

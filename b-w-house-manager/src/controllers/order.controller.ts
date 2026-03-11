@@ -6,8 +6,9 @@ const orderService = new OrderService();
 
 export const createOrder = async (c: Context) => {
     try {
+        const tenantId = c.get('tenantId');
         const { customerId, orderType, staffId, itemIds } = await c.req.json();
-        const order = await orderService.createOrder(customerId, orderType as OrderType, staffId, itemIds);
+        const order = await orderService.createOrder(customerId, orderType as OrderType, staffId, itemIds, tenantId);
         return c.json(order, 201);
     } catch (error) {
         return c.json({ error: (error as Error).message }, 400);
@@ -16,9 +17,10 @@ export const createOrder = async (c: Context) => {
 
 export const updateOrderStatus = async (c: Context) => {
     try {
+        const tenantId = c.get('tenantId');
         const orderId = c.req.param('orderId');
         const { status } = await c.req.json();
-        const order = await orderService.updateOrderStatus(orderId, status as OrderStatus);
+        const order = await orderService.updateOrderStatus(orderId, status as OrderStatus, tenantId);
         return c.json(order);
     } catch (error) {
         return c.json({ error: (error as Error).message }, 400);
@@ -27,8 +29,9 @@ export const updateOrderStatus = async (c: Context) => {
 
 export const getOrderDetails = async (c: Context) => {
     try {
+        const tenantId = c.get('tenantId');
         const orderId = c.req.param('orderId');
-        const order = await orderService.getOrderDetails(orderId);
+        const order = await orderService.getOrderDetails(orderId, tenantId);
         if (!order) return c.json({ error: 'Order not found' }, 404);
         return c.json(order);
     } catch (error) {

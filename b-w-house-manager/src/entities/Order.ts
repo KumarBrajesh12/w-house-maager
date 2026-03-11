@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import type { User } from './User.ts';
 import type { OrderItem } from './OrderItem.ts';
+import type { Tenant } from './Tenant.ts';
 
 export enum OrderType {
     STORE = 'store',
@@ -19,6 +20,13 @@ export enum OrderStatus {
 export class Order {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
+
+    @Column({ name: 'tenant_id', nullable: true })
+    tenantId?: string;
+
+    @ManyToOne('Tenant', { nullable: true })
+    @JoinColumn({ name: 'tenant_id' })
+    tenant?: Tenant;
 
     @Column({ name: 'customer_id' })
     customerId!: string;

@@ -28,6 +28,8 @@ const navigation = [
 
 export function Sidebar() {
     const pathname = usePathname();
+    const user = authService.getCurrentUser();
+    const orgName = user?.tenantName || "WMS Pro";
 
     return (
         <aside className="fixed left-4 top-4 bottom-4 w-64 glass-card p-6 flex flex-col z-50">
@@ -35,7 +37,10 @@ export function Sidebar() {
                 <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.2)]">
                     <Warehouse className="text-black w-6 h-6" />
                 </div>
-                <span className="font-bold text-xl tracking-tight text-white">WMS <span className="text-white/50">Pro</span></span>
+                <div className="flex flex-col">
+                    <span className="font-bold text-lg tracking-tight text-white leading-tight">{orgName}</span>
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold">Warehouse Management</span>
+                </div>
             </div>
 
             <nav className="flex-1 space-y-2">

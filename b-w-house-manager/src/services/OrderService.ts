@@ -8,13 +8,14 @@ export class OrderService {
     private orderItemRepository = AppDataSource.getRepository(OrderItem);
     private activityLogService = new ActivityLogService();
 
-    async createOrder(customerId: string, orderType: OrderType, staffId: string, itemIds: string[]) {
+    async createOrder(customerId: string, orderType: OrderType, staffId: string, itemIds: string[], tenantId: string) {
         return await AppDataSource.transaction(async transactionalEntityManager => {
             const order = this.orderRepository.create({
                 customerId,
                 orderType,
                 createdByStaffId: staffId,
-                status: OrderStatus.PENDING
+                status: OrderStatus.PENDING,
+                tenantId
             });
             const savedOrder = await transactionalEntityManager.save(Order, order);
 
@@ -38,9 +39,9 @@ export class OrderService {
         });
     }
 
-    async updateOrderStatus(orderId: string, status: OrderStatus, staffId?: string) {
-        await this.orderRepository.update(orderId, { status });
-        const updatedOrder = await this.orderRepository.findOne({ where: { id: orderId }, relations: ['items'] });
+    async updateOrderStatus(orderId: string, status: OrderStatus, tenantId: string, staffId?: string) {
+        await this.orderRepository.update({ id: orderId, tenantId }, { status });
+        const updatedOrder = await this.orderRepository.findOne({ where: { id: orderId, tenantId }, relations: ['items'] });
 
         if (updatedOrder && staffId) {
             await this.activityLogService.log(
@@ -55,9 +56,9 @@ export class OrderService {
         return updatedOrder;
     }
 
-    async getOrderDetails(orderId: string) {
+    async getOrderDetails(orderId: string, tenantId: string) {
         return await this.orderRepository.findOne({
-            where: { id: orderId },
+            where: { id: orderId, tenantId },
             relations: ['customer', 'items', 'items.item', 'items.assignedSlot']
         });
     }

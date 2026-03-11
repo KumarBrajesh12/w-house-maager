@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, ManyToOne, JoinColumn } from 'typeorm';
 import type { CustomerProfile } from './CustomerProfile.ts';
 import type { StaffProfile } from './StaffProfile.ts';
+import type { Tenant } from './Tenant.ts';
 
 export enum UserRole {
     ADMIN = 'admin',
@@ -12,6 +13,13 @@ export enum UserRole {
 export class User {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
+
+    @Column({ name: 'tenant_id', nullable: true })
+    tenantId?: string;
+
+    @ManyToOne('Tenant', 'users', { nullable: true })
+    @JoinColumn({ name: 'tenant_id' })
+    tenant?: Tenant;
 
     @Column({ unique: true })
     email!: string;
