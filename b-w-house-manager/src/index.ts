@@ -11,6 +11,7 @@ import billingRoutes from './routes/billing.routes.ts';
 import analyticsRoutes from './routes/analytics.routes.ts';
 import timelineRoutes from './routes/timeline.routes.ts';
 import { tenantMiddleware } from './middleware/tenant.middleware.ts';
+import stripeRoutes from './routes/stripe.routes.ts';
 
 const app = new Hono();
 

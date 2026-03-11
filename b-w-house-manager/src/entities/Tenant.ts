@@ -16,6 +16,15 @@ export class Tenant {
     @Column({ name: 'is_active', default: true })
     isActive!: boolean;
 
+    @Column({ name: 'stripe_customer_id', nullable: true })
+    stripeCustomerId?: string;
+
+    @Column({ name: 'subscription_status', nullable: true })
+    subscriptionStatus?: string;
+
+    @Column({ name: 'plan_id', nullable: true })
+    planId?: string;
+
     @CreateDateColumn({ name: 'created_at' })
     createdAt!: Date;
 

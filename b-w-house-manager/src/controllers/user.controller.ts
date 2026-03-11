@@ -81,7 +81,9 @@ export const login = async (c: Context) => {
                 email: user.email,
                 role: user.role,
                 tenantId: user.tenantId,
-                tenantName: user.tenant?.name
+                tenantName: user.tenant?.name,
+                subscriptionStatus: user.tenant?.subscriptionStatus,
+                planId: user.tenant?.planId
             }
         });
     } catch (error) {
