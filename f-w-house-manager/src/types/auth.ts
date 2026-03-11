@@ -7,6 +7,8 @@ export interface User {
     isActive: boolean;
     tenantId?: string;
     tenantName?: string;
+    subscriptionStatus?: string;
+    planId?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -19,6 +21,8 @@ export interface AuthResponse {
         role: UserRole;
         tenantId?: string;
         tenantName?: string;
+        subscriptionStatus?: string;
+        planId?: string;
     };
 }
 

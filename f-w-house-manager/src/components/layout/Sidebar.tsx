@@ -10,6 +10,7 @@ import {
     Users,
     Warehouse,
     Settings,
+    Shield,
     LogOut,
     ChevronRight
 } from "lucide-react";
@@ -23,6 +24,7 @@ const navigation = [
     { name: "Orders", href: "/orders", icon: ShoppingCart },
     { name: "Customers", href: "/customers", icon: Users },
     { name: "Warehouses", href: "/warehouses", icon: Warehouse },
+    { name: "Subscription", href: "/pricing", icon: Shield },
     { name: "Settings", href: "/settings", icon: Settings },
 ];
 
